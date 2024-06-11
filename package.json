@@ -1,0 +1,11 @@
+﻿{
+  "name": "com.braty.bremity",
+  "version": "1.0.0",
+  "displayName": "Bremity",
+  "description": "Simple event emitting system",
+  "unity": "2022.1",
+  "author": {
+    "name": "Bora Ataysen",
+    "url": "https://github.com/boraty14"
+  }
+}
