@@ -4,18 +4,18 @@ namespace Bremity
 {
     public static class Emitter
     {
-        public static void AddListener<T>(this IListener<T> listener) where T : struct, ISignal
+        public static void AddListener<T>(this IListener<T> listener) where T : ISignal
         {
             Emitter<T>.AddListener(listener);
         }
         
-        public static void RemoveListener<T>(this IListener<T> listener) where T : struct, ISignal
+        public static void RemoveListener<T>(this IListener<T> listener) where T : ISignal
         {
             Emitter<T>.RemoveListener(listener);
         }
     }
     
-    public static class Emitter<T> where T : struct, ISignal
+    public static class Emitter<T> where T : ISignal
     {
         private static readonly List<IListener<T>> _listeners = new();
         private static readonly Stack<int> _nullIndices = new();
