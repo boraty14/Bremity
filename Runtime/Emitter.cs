@@ -1,39 +1,53 @@
+using System;
 using System.Collections.Generic;
 
 namespace Bremity
 {
     public static class Emitter
     {
-        public static void AddListener<T>(this IListener<T> listener) where T : ISignal
-        {
-            Emitter<T>.AddListener(listener);
-        }
-        
-        public static void RemoveListener<T>(this IListener<T> listener) where T : ISignal
-        {
-            Emitter<T>.RemoveListener(listener);
-        }
-    }
-    
-    public static class Emitter<T> where T : ISignal
-    {
-        private static readonly List<IListener<T>> _listeners = new();
+        private static readonly Dictionary<Type, object> _listeners = new();
         private static readonly Stack<int> _nullIndices = new();
 
-        internal static void AddListener(IListener<T> listener)
+        public static void Init()
         {
-            _listeners.Add(listener);
+            _listeners.Clear();
+            _nullIndices.Clear();
+        }
+        
+        public static void AddListener<T>(IListener<T> listener) where T : ISignal
+        {
+            var signalType = typeof(T);
+            if(!_listeners.ContainsKey(signalType))
+            {
+                _listeners[signalType] = new List<IListener<T>>();
+            }
+
+            List<IListener<T>> signalListeners = (List<IListener<T>>)_listeners[signalType];
+            signalListeners.Add(listener);
+        }
+        
+        public static void RemoveListener<T>(IListener<T> listener) where T : ISignal
+        {
+            var signalType = typeof(T);
+            if (!_listeners.ContainsKey(signalType))
+            {
+                return;
+            }
+            List<IListener<T>> signalListeners = (List<IListener<T>>)_listeners[signalType];
+            signalListeners.Remove(listener);
         }
 
-        internal static void RemoveListener(IListener<T> listener)
+        public static void Emit<T>(T signal = default) where T : ISignal
         {
-            _listeners.Remove(listener);
-        }
-
-        public static void Emit(T signal = default)
-        {
+            var signalType = typeof(T);
+            if (!_listeners.ContainsKey(signalType))
+            {
+                return;
+            }
+            
+            List<IListener<T>> signalListeners = (List<IListener<T>>)_listeners[signalType];
             int i = -1;
-            foreach (var listener in _listeners)
+            foreach (var listener in signalListeners)
             {
                 i++;
                 if (listener == null)
@@ -47,7 +61,7 @@ namespace Bremity
             
             while (_nullIndices.Count > 0)
             {
-                _listeners.RemoveAt(_nullIndices.Pop());
+                signalListeners.RemoveAt(_nullIndices.Pop());
             }
         }
     }
